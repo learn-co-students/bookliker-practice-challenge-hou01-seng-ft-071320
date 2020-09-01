@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     appendBooksToListPanel()
 });
 
+const myself = {"id":1, "username":"pouros"}
 const listPanelUl = document.querySelector("#list")
 const showPanel = document.querySelector("#show-panel")
 
@@ -10,9 +11,8 @@ const appendBooksToListPanel = () => {
     .then(res => res.json())
     .then((books) => {
         books.forEach(book => {
-            createBooksLi(book)})
+        createBooksLi(book)})
     })
-
 }
 
 const createBooksLi = (singleBook) => {
@@ -36,12 +36,12 @@ const showBook = (id) => {
     })
 }
 
-
-
 const appendBookToShowPanel = (singleBook) => {
     while (showPanel.firstChild) showPanel.removeChild(showPanel.firstChild)
+
     const bookDiv = document.createElement('div')
     bookDiv.dataset.bookId = singleBook.id
+
     const bookImg = document.createElement('img')
     bookImg.src = singleBook.img_url
     
@@ -84,50 +84,41 @@ const appendBookToShowPanel = (singleBook) => {
         
         const bookId = e.target.parentElement.dataset.bookId
 
-
         if (likeButton.innerText === "LIKE") {
             likeButton.innerText = "UNLIKE"
-            likingBook(bookId)
+            bookLikes(bookId)
         } else if (likeButton.innerText === "UNLIKE") {
             likeButton.innerText = "LIKE"
-            unlikingBook(bookId)
-        }
-                
+            bookUnlikes(bookId)
+        }          
     })
-
 
     bookDiv.append(bookImg, bookTitle, subtitle, author, description, userLikesDiv,likeButton)
     showPanel.append(bookDiv)
 }
 
-const likingBook = (id) => {
-    bookLikes(id)
-}
-
-const unlikingBook = (id) => {
-    bookunLikes(id)
-}
-
-
 const bookLikes = (id) => {
-
-    const myself = {"id":1, "username":"pouros"}
 
     fetch(`http://localhost:3000/books/${id}`)
     .then(res => res.json())
     .then((book) => {
-       book.users.push(myself)
-       updateBookLikes(book.users, id)
+        let users;
+        users = book.users
+       users.push(myself)
+       updateBookLikes(users, id)
     })
 }
 
-const bookunLikes = (id) => {
+const bookUnlikes = (id) => {
 
     fetch(`http://localhost:3000/books/${id}`)
     .then(res => res.json())
     .then((book) => {
-       book.users.pop()
-       updateBookLikes(book.users, id)
+        let users;
+       users = book.users.filter(user => {
+           return user.id !== myself.id
+       })
+       updateBookLikes(users, id)
     })
 }
 
